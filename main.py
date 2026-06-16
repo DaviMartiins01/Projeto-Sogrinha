@@ -1,84 +1,72 @@
-import sqlite3
 import function_clientes
+import inicialize_db
+from cmdcommands import limpar_tela
+from cmdcommands import mudar_cor
 
-lista_de_servicos = ["Reforma", "Bainha", "Confecção", "Ajuste", "Conserto"]
-continuar = ""
+loop = True
 
-conexao = sqlite3.connect("clientes.db")
-cursor = conexao.cursor()
+#Retorna o a conexao e o cursor da inicialize_db
+conexao, cursor = inicialize_db.inicialize_tables()
 
-cursor.execute("""CREATE TABLE IF NOT EXISTS clientes (
-                                            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-                                            nome TEXT NOT NULL, 
-                                            CPF TEXT NOT NULL UNIQUE,
-                                            numero TEXT,
-                                            status TEXT,
-                                            valor INTEGER
-                                                                )""")
+#estilizando o cmd antes de entrar no loop
+limpar_tela()
+mudar_cor()
 
-cursor.execute ("""CREATE TABLE IF NOT EXISTS servicos (
-                   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                   cliente_id INTEGER NOT NULL,
-                   descricao TEXT NOT NULL
-                   )""")
+while loop:
 
-conexao.commit()
+    user_menu_input = function_clientes.print_start_menu()
+    limpar_tela()
+    if user_menu_input == "1":
+        nome_cliente = input("Informe o nome do cliente: ").lower()
+        cpf_cliente = input("Informe o CPF do cliente: ")
+        numero_cliente = input("Informe o numero do cliente: ")
 
-print("""
-(1) Cadastrar Clientes
-(2) Serviços
-(3) Pedidos""")
+        print("Nome do cliente: ", nome_cliente.capitalize())
+        print("CPF do cliente: ", cpf_cliente)
+        print("Numero do cliente: ", numero_cliente)
 
-user_menu_input = input("Escolha uma opção: ")
+        confirm_registration = input("As informações estão corretas? [S/N]").lower()
 
-if user_menu_input == "1":
-    nome_cliente = input("Informe o nome do cliente: ")
-    cpf_cliente = input("Informe o CPF do cliente: ")
-    numero_cliente = input("Informe o numero do cliente: ")
+        if confirm_registration == "s":
+            cursor.execute("""INSERT INTO clientes (nome, cpf, numero) VALUES (?, ?, ?)""",
+                           (nome_cliente, cpf_cliente, numero_cliente))
 
-    cursor.execute("""INSERT INTO clientes (nome, cpf, numero) VALUES (?, ?, ?)""",
-                   (nome_cliente, cpf_cliente, numero_cliente))
-    conexao.commit()
-    print("Cliente cadastrado com sucesso!")
+            conexao.commit()
+            print("Cliente cadastrado com sucesso!")
+        elif confirm_registration == "n":
+            print("Cliente não cadastrado")
 
-elif user_menu_input == "2":
-    print("""Qual cliente deseja os seus serviços?
+
+    elif user_menu_input == "2":
+        print("""Qual cliente deseja os seus serviços?
 (1) Digite o nome do cliente
 (2) Digite o CPF do cliente""")
 
-    user_service_menu_input = input("Escolha uma opção: ")
+        user_service_menu_input = input("Escolha uma opção: ")
+        limpar_tela()
 
-    if user_service_menu_input == "1":
-        checar_nome_cliente = input("Informe o nome do cliente: ")
-        cursor.execute("""SELECT * FROM clientes WHERE nome = ?""",
-                       (checar_nome_cliente,))
-        if cursor.fetchone():
-            escolha = function_clientes.print_service()
-            print(lista_de_servicos[escolha - 1])
-        else:
-            print("Esse cliente ainda não foi cadastrado")
+        if user_service_menu_input == "1":
+            checar_nome_cliente = input("Informe o nome do cliente: ").lower()
 
-    if user_service_menu_input == "2":
-        checar_CPF_cliente = input("Informe o CPF do cliente: ")
-        cursor.execute("SELECT * FROM clientes WHERE cpf = ?",
-                       (checar_CPF_cliente,))
+            cursor.execute("""SELECT * FROM clientes WHERE nome = ?""",
+                           (checar_nome_cliente,))
 
-        if cursor.fetchone():
-            while continuar != "n":
-               escolhendo_servico = function_clientes.print_service()
+            results = cursor.fetchone()
 
-               cursor.execute("SELECT id FROM clientes WHERE cpf = ?",
-                              (checar_CPF_cliente,))
-               cliente_id = cursor.fetchone()[0]
+            function_clientes.loop_escolher_servicos(conexao, cursor, results, checar_nome_cliente)
+            limpar_tela()
 
-               cursor.execute("""INSERT INTO servicos (cliente_id, descricao) VALUES (?, ?)""",
-                              (cliente_id,lista_de_servicos[escolhendo_servico - 1]))
-               conexao.commit()
-               continuar = input("Deseja continuar escolhendo serviços? [S/N]").lower()
+        if user_service_menu_input == "2":
+            checar_CPF_cliente = input("Informe o CPF do cliente: ")
+            cursor.execute("SELECT * FROM clientes WHERE cpf = ?",
+                           (checar_CPF_cliente,))
 
-        else:
-            print("Esse cliente ainda não foi cadastrado")
+            results = cursor.fetchone()
 
+            function_clientes.loop_escolher_servicos(conexao, cursor, results, checar_CPF_cliente)
+            limpar_tela()
+    elif user_menu_input == "3":
+        print("Pedidos")
 
-elif user_menu_input == "3":
-    print("Pedidos")
+    elif user_menu_input == "4":
+        loop = False
