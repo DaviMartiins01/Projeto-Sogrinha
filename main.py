@@ -4,8 +4,9 @@ from cmdcommands import limpar_tela
 from cmdcommands import mudar_cor
 
 loop = True
-
-#Retorna o a conexao e o cursor da inicialize_db
+fim_loop_servico = ""
+results = []
+#Retorna a conexao e o cursor da inicialize_db
 conexao, cursor = inicialize_db.inicialize_tables()
 
 #estilizando o cmd antes de entrar no loop
@@ -16,6 +17,7 @@ while loop:
 
     user_menu_input = function_clientes.print_start_menu()
     limpar_tela()
+
     if user_menu_input == "1":
         nome_cliente = input("Informe o nome do cliente: ").lower()
         cpf_cliente = input("Informe o CPF do cliente: ")
@@ -53,7 +55,7 @@ while loop:
 
             results = cursor.fetchone()
 
-            function_clientes.loop_escolher_servicos(conexao, cursor, results, checar_nome_cliente)
+            fim_loop_servico = function_clientes.loop_escolher_servicos(conexao, cursor, results, checar_nome_cliente)
             limpar_tela()
 
         if user_service_menu_input == "2":
@@ -63,10 +65,40 @@ while loop:
 
             results = cursor.fetchone()
 
-            function_clientes.loop_escolher_servicos(conexao, cursor, results, checar_CPF_cliente)
+            fim_loop_servico = function_clientes.loop_escolher_servicos(conexao, cursor, results, checar_CPF_cliente)
             limpar_tela()
+
+        if fim_loop_servico == "n":
+            limpar_tela()
+            valor_servico = input("Qual o valor do serviço?")
+            cursor.execute("""UPDATE clientes SET valor = ?, status = ? WHERE id = ?""", (float(valor_servico), "Em produção",results[0]))
+            conexao.commit()
+
     elif user_menu_input == "3":
-        print("Pedidos")
+        limpar_tela()
+        tipo_servico = function_clientes.print_pedidos()
+        limpar_tela()
+        print("-------------------------------------------------------------------------------------")
+
+        if tipo_servico == "1":
+            cursor.execute("""SELECT clientes.nome, GROUP_CONCAT(servicos.descricao, ', '), clientes.status, clientes.valor 
+                              FROM clientes 
+                              LEFT JOIN servicos 
+                                        ON clientes.id = servicos.cliente_id
+                              WHERE servicos.descricao IS NOT NULL
+                              GROUP BY clientes.id""")
+
+            pedidos = cursor.fetchall()
+
+            for pedido in pedidos:
+                print(f"Name: {pedido[0].capitalize()} / Servicos: {pedido[1]} / Status: {pedido[2]} / Valor: {pedido[3]}")
+                print("-------------------------------------------------------------------------------------")
+
+
+
+
+
+
 
     elif user_menu_input == "4":
         loop = False

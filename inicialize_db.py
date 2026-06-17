@@ -10,7 +10,7 @@ def inicialize_tables():
                                             CPF TEXT NOT NULL UNIQUE,
                                             numero TEXT,
                                             status TEXT,
-                                            valor INTEGER
+                                            valor FLOAT
                                                                 )""")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS servicos

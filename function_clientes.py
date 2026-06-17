@@ -1,3 +1,15 @@
+def print_pedidos():
+    print("""
+=========================================================
+                         Pedidos
+=========================================================
+(1) Em produção
+(2) Finalizados
+(3) Desistências""")
+
+    tipo_servico = input("Qual tipo de serviço você deseja visualizar? ")
+    return tipo_servico
+
 def print_service():
     print("""
 =========================================================
@@ -51,3 +63,5 @@ def loop_escolher_servicos(conexao, cursor, results, checar_info):
             continuar_escolhendo = input("Deseja continuar escolhendo serviços? [S/N]").lower()
     elif not results:
         print("Esse cliente ainda não foi cadastrado")
+
+    return continuar_escolhendo
