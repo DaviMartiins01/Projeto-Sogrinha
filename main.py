@@ -80,7 +80,11 @@ while loop:
         limpar_tela()
 
         if tipo_servico == "1":
-            function_clientes.print_pedidos_em_producao(cursor)
+            function_clientes.print_pedidos_com_status(cursor, "Em produção")
+        elif tipo_servico == "2":
+            function_clientes.print_pedidos_com_status(cursor, "Feito")
+        elif tipo_servico == "3":
+            function_clientes.print_pedidos_com_status(cursor, "Desistência")
 
     elif user_menu_input == "4":
         loop = False

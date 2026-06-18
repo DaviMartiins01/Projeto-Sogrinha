@@ -38,17 +38,18 @@ def print_start_menu():
     user_menu_input = input("Escolha uma opção: ")
     return user_menu_input
 
-def print_pedidos_em_producao(cursor):
-    print("""
+def print_pedidos_com_status(cursor, status):
+    print(f"""
 =========================================================
-                      EM PRODUÇÃO 
+                      {status.upper()}
 =========================================================\n""")
     cursor.execute("""SELECT clientes.nome, GROUP_CONCAT(servicos.descricao, ', '), clientes.valor
                       FROM clientes
                                LEFT JOIN servicos
                                          ON clientes.id = servicos.cliente_id
-                      WHERE clientes.status = 'Em produção'
-                      GROUP BY clientes.id""")
+                      WHERE clientes.status = (?)
+                      GROUP BY clientes.id""",
+                      (status,))
 
     pedidos = cursor.fetchall()
 
