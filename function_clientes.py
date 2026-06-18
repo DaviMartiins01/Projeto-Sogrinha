@@ -1,4 +1,28 @@
+from asyncio.windows_events import NULL
+
 import prints
+
+def cadastrar_clientes(conexao, cursor):
+    nome_cliente = input("Informe o nome do cliente: ").lower()
+    cpf_cliente = input("Informe o CPF do cliente: ")
+    numero_cliente = input("Informe o numero do cliente: ")
+
+    print("Nome do cliente: ", nome_cliente.capitalize())
+    print("CPF do cliente: ", cpf_cliente)
+    print("Numero do cliente: ", numero_cliente)
+
+    confirm_registration = input("As informações estão corretas? [S/N]").lower()
+
+    if confirm_registration == "s":
+        cursor.execute("""INSERT INTO clientes (nome, cpf, numero)
+                          VALUES (?, ?, ?)""",
+                       (nome_cliente, cpf_cliente, numero_cliente))
+
+        conexao.commit()
+        print("Cliente cadastrado com sucesso!")
+    elif confirm_registration == "n":
+        print("Cliente não cadastrado")
+
 
 def pega_pedidos_com_status_escolhido(cursor, status):
     print(f"""
@@ -38,11 +62,12 @@ def escolher_serviços(conexao, cursor, checar_info, results):
 
 def loop_escolher_servicos(conexao, cursor, results, checar_info):
     continuar_escolhendo = ""
+    print(f"Results: {results}")
     if results:
         while continuar_escolhendo != "n":
             escolher_serviços(conexao, cursor, checar_info, results)
             continuar_escolhendo = input("Deseja continuar escolhendo serviços? [S/N]").lower()
     elif not results:
-        print("Esse cliente ainda não foi cadastrado")
+        return "cadastre"
 
     return continuar_escolhendo

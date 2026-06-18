@@ -30,7 +30,7 @@ def print_start_menu():
 =========================================================
                    Projeto Sogrinha
 =========================================================
-(1) Cadastrar Clientes
+(1) Clientes
 (2) Serviços
 (3) Pedidos
 (4) Sair""")

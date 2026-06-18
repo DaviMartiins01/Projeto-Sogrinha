@@ -20,25 +20,7 @@ while loop:
     limpar_tela()
 
     if user_menu_input == "1":
-        nome_cliente = input("Informe o nome do cliente: ").lower()
-        cpf_cliente = input("Informe o CPF do cliente: ")
-        numero_cliente = input("Informe o numero do cliente: ")
-
-        print("Nome do cliente: ", nome_cliente.capitalize())
-        print("CPF do cliente: ", cpf_cliente)
-        print("Numero do cliente: ", numero_cliente)
-
-        confirm_registration = input("As informações estão corretas? [S/N]").lower()
-
-        if confirm_registration == "s":
-            cursor.execute("""INSERT INTO clientes (nome, cpf, numero) VALUES (?, ?, ?)""",
-                           (nome_cliente, cpf_cliente, numero_cliente))
-
-            conexao.commit()
-            print("Cliente cadastrado com sucesso!")
-        elif confirm_registration == "n":
-            print("Cliente não cadastrado")
-
+       function_clientes.cadastrar_clientes(conexao, cursor)
 
     elif user_menu_input == "2":
         print("""Qual cliente deseja os seus serviços?
@@ -57,7 +39,6 @@ while loop:
             results = cursor.fetchone()
 
             fim_loop_servico = function_clientes.loop_escolher_servicos(conexao, cursor, results, checar_nome_cliente)
-            limpar_tela()
 
         if user_service_menu_input == "2":
             checar_CPF_cliente = input("Informe o CPF do cliente: ")
@@ -67,13 +48,20 @@ while loop:
             results = cursor.fetchone()
 
             fim_loop_servico = function_clientes.loop_escolher_servicos(conexao, cursor, results, checar_CPF_cliente)
-            limpar_tela()
 
         if fim_loop_servico == "n":
             limpar_tela()
             valor_servico = input("Qual o valor do serviço?")
-            cursor.execute("""UPDATE clientes SET valor = ?, status = ? WHERE id = ?""", (float(valor_servico), "Em produção",results[0]))
+            limpar_tela()
+            cursor.execute("""UPDATE clientes SET valor = ?, status = ? WHERE id = ?""",
+                           (float(valor_servico), "Em produção",results[0]))
             conexao.commit()
+        elif fim_loop_servico == "cadastre":
+            print("Esse cliente ainda não foi cadastrado")
+            novo_cadastro = input("Deseja cadastrar esse cliente? [S/N]").lower()
+            limpar_tela()
+            if novo_cadastro == "s":
+                function_clientes.cadastrar_clientes(conexao, cursor)
 
     elif user_menu_input == "3":
         limpar_tela()
