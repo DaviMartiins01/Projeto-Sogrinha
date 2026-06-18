@@ -38,6 +38,24 @@ def print_start_menu():
     user_menu_input = input("Escolha uma opção: ")
     return user_menu_input
 
+def print_pedidos_em_producao(cursor):
+    print("""
+=========================================================
+                      EM PRODUÇÃO 
+=========================================================\n""")
+    cursor.execute("""SELECT clientes.nome, GROUP_CONCAT(servicos.descricao, ', '), clientes.valor
+                      FROM clientes
+                               LEFT JOIN servicos
+                                         ON clientes.id = servicos.cliente_id
+                      WHERE clientes.status = 'Em produção'
+                      GROUP BY clientes.id""")
+
+    pedidos = cursor.fetchall()
+
+    for pedido in pedidos:
+        print(f"Name: {pedido[0].capitalize()} / Servicos: {pedido[1]} / Valor: {pedido[2]}")
+        print("--------------------------------------------------------------------------")
+
 def escolher_serviços(conexao, cursor, checar_info, results):
     lista_de_servicos = ["Reforma", "Bainha", "Confecção", "Ajuste", "Conserto"]
 

@@ -78,27 +78,9 @@ while loop:
         limpar_tela()
         tipo_servico = function_clientes.print_pedidos()
         limpar_tela()
-        print("-------------------------------------------------------------------------------------")
 
         if tipo_servico == "1":
-            cursor.execute("""SELECT clientes.nome, GROUP_CONCAT(servicos.descricao, ', '), clientes.status, clientes.valor 
-                              FROM clientes 
-                              LEFT JOIN servicos 
-                                        ON clientes.id = servicos.cliente_id
-                              WHERE servicos.descricao IS NOT NULL
-                              GROUP BY clientes.id""")
-
-            pedidos = cursor.fetchall()
-
-            for pedido in pedidos:
-                print(f"Name: {pedido[0].capitalize()} / Servicos: {pedido[1]} / Status: {pedido[2]} / Valor: {pedido[3]}")
-                print("-------------------------------------------------------------------------------------")
-
-
-
-
-
-
+            function_clientes.print_pedidos_em_producao(cursor)
 
     elif user_menu_input == "4":
         loop = False
