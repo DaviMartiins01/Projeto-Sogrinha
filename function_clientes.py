@@ -1,44 +1,6 @@
-def print_pedidos():
-    print("""
-=========================================================
-                         Pedidos
-=========================================================
-(1) Em produção
-(2) Finalizados
-(3) Desistências""")
+import prints
 
-    tipo_servico = input("Qual tipo de serviço você deseja visualizar? ")
-    return tipo_servico
-
-def print_service():
-    print("""
-=========================================================
-                    SERVIÇOS
-=========================================================""")
-    print("""
-(1) Reforma
-(2) Bainha
-(3) Confecção
-(4) Ajuste
-(5) Conserto""")
-
-    escolha = input("Escolha uma opção: ")
-    return int(escolha)
-
-def print_start_menu():
-    print("""
-=========================================================
-                   Projeto Sogrinha
-=========================================================
-(1) Cadastrar Clientes
-(2) Serviços
-(3) Pedidos
-(4) Sair""")
-
-    user_menu_input = input("Escolha uma opção: ")
-    return user_menu_input
-
-def print_pedidos_com_status(cursor, status):
+def pega_pedidos_com_status_escolhido(cursor, status):
     print(f"""
 =========================================================
                       {status.upper()}
@@ -60,7 +22,7 @@ def print_pedidos_com_status(cursor, status):
 def escolher_serviços(conexao, cursor, checar_info, results):
     lista_de_servicos = ["Reforma", "Bainha", "Confecção", "Ajuste", "Conserto"]
 
-    escolhendo_servico = int(print_service())
+    escolhendo_servico = int(prints.print_service())
 
     cursor.execute("SELECT id FROM clientes WHERE cpf = ?",
                     (checar_info,))

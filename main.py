@@ -1,5 +1,6 @@
 import function_clientes
 import inicialize_db
+import prints
 from cmdcommands import limpar_tela
 from cmdcommands import mudar_cor
 
@@ -15,7 +16,7 @@ mudar_cor()
 
 while loop:
 
-    user_menu_input = function_clientes.print_start_menu()
+    user_menu_input = prints.print_start_menu()
     limpar_tela()
 
     if user_menu_input == "1":
@@ -76,15 +77,15 @@ while loop:
 
     elif user_menu_input == "3":
         limpar_tela()
-        tipo_servico = function_clientes.print_pedidos()
+        tipo_servico = prints.print_pedidos()
         limpar_tela()
 
         if tipo_servico == "1":
-            function_clientes.print_pedidos_com_status(cursor, "Em produção")
+            function_clientes.pega_pedidos_com_status_escolhido(cursor, "Em produção")
         elif tipo_servico == "2":
-            function_clientes.print_pedidos_com_status(cursor, "Feito")
+            function_clientes.pega_pedidos_com_status_escolhido(cursor, "Feito")
         elif tipo_servico == "3":
-            function_clientes.print_pedidos_com_status(cursor, "Desistência")
+            function_clientes.pega_pedidos_com_status_escolhido(cursor, "Desistência")
 
     elif user_menu_input == "4":
         loop = False
