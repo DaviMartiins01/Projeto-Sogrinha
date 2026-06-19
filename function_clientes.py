@@ -1,6 +1,14 @@
-from asyncio.windows_events import NULL
-
 import prints
+
+def clients_info(cursor):
+    cursor.execute("""SELECT nome, cpf, numero, valor FROM clientes""")
+    info = cursor.fetchall()
+    print("----------------------------------------------------------------------")
+    for client_data in info:
+        nome, cpf, numero, valor = client_data
+        print(f"Nome: {nome} / CPF: {cpf} / Numero: {numero} / Valor: {valor}")
+        print("----------------------------------------------------------------------")
+
 
 def cadastrar_clientes(conexao, cursor):
     nome_cliente = input("Informe o nome do cliente: ").lower()

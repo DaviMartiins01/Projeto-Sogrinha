@@ -20,7 +20,17 @@ while loop:
     limpar_tela()
 
     if user_menu_input == "1":
-       function_clientes.cadastrar_clientes(conexao, cursor)
+        print("""
+(1) Ver informações dos clientes
+(2) Cadastrar cliente""")
+
+        cadastro_ou_info = input("Escolha uma opção: ")
+        limpar_tela()
+
+        if cadastro_ou_info == "1":
+            function_clientes.clients_info(cursor)
+        elif cadastro_ou_info == "2":
+            function_clientes.cadastrar_clientes(conexao, cursor)
 
     elif user_menu_input == "2":
         print("""Qual cliente deseja os seus serviços?
