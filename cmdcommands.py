@@ -7,4 +7,4 @@ def mudar_cor():
     os.system("color 0E")
 
 def voltar_cor():
-    os.system("color")
+    os.system("color 07")
