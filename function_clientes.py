@@ -6,7 +6,7 @@ def clients_info(cursor):
     print("----------------------------------------------------------------------")
     for client_data in info:
         nome, cpf, numero, valor = client_data
-        print(f"Nome: {nome} / CPF: {cpf} / Numero: {numero} / Valor: {valor}")
+        print(f"Nome: {nome.capitalize()} / CPF: {cpf} / Numero: {numero} / Valor: {valor}")
         print("----------------------------------------------------------------------")
 
 
@@ -51,31 +51,47 @@ def pega_pedidos_com_status_escolhido(cursor, status):
         print(f"Name: {pedido[0].capitalize()} / Servicos: {pedido[1]} / Valor: {pedido[2]}")
         print("--------------------------------------------------------------------------")
 
-def escolher_serviços(conexao, cursor, checar_info, results):
+def loop_escolher_servicos(results):
     lista_de_servicos = ["Reforma", "Bainha", "Confecção", "Ajuste", "Conserto"]
+    lista_de_servicos_escolhidos = []
+    continuar_escolhendo = ""
 
-    escolhendo_servico = int(prints.print_service())
+    while continuar_escolhendo != "n":
+        escolhendo_servico = int(prints.print_service())
 
-    cursor.execute("SELECT id FROM clientes WHERE cpf = ?",
-                    (checar_info,))
+        lista_de_servicos_escolhidos.append(lista_de_servicos[escolhendo_servico - 1])
+        continuar_escolhendo = input("Deseja continuar escolhendo serviços? [S/N]").lower()
 
-    cliente_id = results[0]
+    return continuar_escolhendo, lista_de_servicos_escolhidos
 
-    #Adiciona os serviços escolhidos na tabela
-    cursor.execute("""INSERT INTO servicos (cliente_id, descricao)
-                          VALUES (?, ?)""",
-                    (cliente_id, lista_de_servicos[escolhendo_servico - 1]))
+def checar_cliente_existe_e_passar_pro_loop(cursor, tipo_busca):
+    if tipo_busca == "1":
+        checar_nome_cliente = input("Informe o nome do cliente: ").lower()
+
+        cursor.execute("""SELECT *
+                          FROM clientes
+                          WHERE nome = ?""",
+                       (checar_nome_cliente,))
+    elif tipo_busca == "2":
+        checar_cpf_cliente = input("Informe o CPF do cliente: ")
+        cursor.execute("SELECT * FROM clientes WHERE cpf = ?",
+                       (checar_cpf_cliente,))
+    else:
+        return "Comando Inválido", "", ""
+
+    results = cursor.fetchone()
+    if results:
+        fim_loop_servico, lista_servicos = loop_escolher_servicos(results)
+        cliente_id = results[0]
+        return fim_loop_servico, lista_servicos, cliente_id
+    else:
+        return "cadastre", "", ""
+
+def adiciona_servicos_escolhidos(conexao, cursor, id_cliente, lista_de_servicos):
+    for servico in lista_de_servicos:
+        cursor.execute("""INSERT INTO servicos (cliente_id, descricao)
+                              VALUES (?, ?)""",
+                        (id_cliente, servico))
 
     conexao.commit()
 
-def loop_escolher_servicos(conexao, cursor, results, checar_info):
-    continuar_escolhendo = ""
-    print(f"Results: {results}")
-    if results:
-        while continuar_escolhendo != "n":
-            escolher_serviços(conexao, cursor, checar_info, results)
-            continuar_escolhendo = input("Deseja continuar escolhendo serviços? [S/N]").lower()
-    elif not results:
-        return "cadastre"
-
-    return continuar_escolhendo
