@@ -5,3 +5,6 @@ def limpar_tela():
 
 def mudar_cor():
     os.system("color 0E")
+
+def voltar_cor():
+    os.system("color")

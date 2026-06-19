@@ -1,8 +1,7 @@
 import function_clientes
 import inicialize_db
 import prints
-from cmdcommands import limpar_tela
-from cmdcommands import mudar_cor
+from cmdcommands import limpar_tela, voltar_cor, mudar_cor
 
 loop = True
 fim_loop_servico = ""
@@ -87,3 +86,6 @@ while loop:
 
     elif user_menu_input == "4":
         loop = False
+
+
+voltar_cor()
