@@ -8,17 +8,18 @@ def inicialize_tables():
                                             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
                                             nome TEXT NOT NULL, 
                                             CPF TEXT NOT NULL UNIQUE,
-                                            numero TEXT,
-                                            status TEXT,
-                                            valor FLOAT
-                                                                )""")
+                                            numero TEXT   )""")
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS servicos
                       (
                           id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                           cliente_id INTEGER NOT NULL,
-                          descricao TEXT NOT NULL
+                          descricao TEXT NOT NULL,
+                          valor FLOAT,
+                          status TEXT  
+                                                           
                       )""")
+
 
     conexao.commit()
 

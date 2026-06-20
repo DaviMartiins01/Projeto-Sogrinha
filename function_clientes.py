@@ -1,12 +1,12 @@
 import prints
 
 def clients_info(cursor):
-    cursor.execute("""SELECT nome, cpf, numero, valor FROM clientes""")
+    cursor.execute("""SELECT nome, cpf, numero FROM clientes""")
     info = cursor.fetchall()
     print("----------------------------------------------------------------------")
     for client_data in info:
-        nome, cpf, numero, valor = client_data
-        print(f"Nome: {nome.capitalize()} / CPF: {cpf} / Numero: {numero} / Valor: {valor}")
+        nome, cpf, numero = client_data
+        print(f"Nome: {nome.capitalize()} / CPF: {cpf} / Numero: {numero}")
         print("----------------------------------------------------------------------")
 
 
@@ -37,11 +37,11 @@ def pega_pedidos_com_status_escolhido(cursor, status):
 =========================================================
                       {status.upper()}
 =========================================================\n""")
-    cursor.execute("""SELECT clientes.nome, GROUP_CONCAT(servicos.descricao, ', '), clientes.valor
+    cursor.execute("""SELECT clientes.nome, GROUP_CONCAT(servicos.descricao, ', '), SUM(servicos.valor)
                       FROM clientes
-                               LEFT JOIN servicos
-                                         ON clientes.id = servicos.cliente_id
-                      WHERE clientes.status = (?)
+                      JOIN servicos
+                        ON servicos.cliente_id = clientes.id
+                      WHERE servicos.status = (?)
                       GROUP BY clientes.id""",
                       (status,))
 
@@ -53,16 +53,25 @@ def pega_pedidos_com_status_escolhido(cursor, status):
 
 def loop_escolher_servicos(results):
     lista_de_servicos = ["Reforma", "Bainha", "Confecção", "Ajuste", "Conserto"]
+    lista_de_valores = []
     lista_de_servicos_escolhidos = []
-    continuar_escolhendo = ""
+    continuar_escolhendo = "s"
 
     while continuar_escolhendo != "n":
-        escolhendo_servico = int(prints.print_service())
+        if continuar_escolhendo == "s":
+            escolhendo_servico = int(prints.print_service())
 
-        lista_de_servicos_escolhidos.append(lista_de_servicos[escolhendo_servico - 1])
-        continuar_escolhendo = input("Deseja continuar escolhendo serviços? [S/N]").lower()
+            lista_de_servicos_escolhidos.append(lista_de_servicos[escolhendo_servico - 1])
+            valor_servico = float(input("Qual o valor do serviço?"))
+            lista_de_valores.append(valor_servico)
+            continuar_escolhendo = input("Deseja continuar escolhendo serviços? [S/N]").lower()
+        else:
+            print("Comando Inválido")
+            continuar_escolhendo = input("Deseja continuar escolhendo serviços? [S/N]").lower()
 
-    return continuar_escolhendo, lista_de_servicos_escolhidos
+    dict_servicos_valores = dict(zip(lista_de_servicos_escolhidos, lista_de_valores))
+
+    return continuar_escolhendo, dict_servicos_valores
 
 def checar_cliente_existe_e_passar_pro_loop(cursor, tipo_busca):
     if tipo_busca == "1":
@@ -81,17 +90,18 @@ def checar_cliente_existe_e_passar_pro_loop(cursor, tipo_busca):
 
     results = cursor.fetchone()
     if results:
-        fim_loop_servico, lista_servicos = loop_escolher_servicos(results)
+        fim_loop_servico, dict_servicos_valores = loop_escolher_servicos(results)
         cliente_id = results[0]
-        return fim_loop_servico, lista_servicos, cliente_id
+        return fim_loop_servico, dict_servicos_valores ,cliente_id
     else:
         return "cadastre", "", ""
 
-def adiciona_servicos_escolhidos(conexao, cursor, id_cliente, lista_de_servicos):
-    for servico in lista_de_servicos:
-        cursor.execute("""INSERT INTO servicos (cliente_id, descricao)
-                              VALUES (?, ?)""",
-                        (id_cliente, servico))
+def adiciona_servicos_escolhidos(conexao, cursor, dict_servicos_valores, id_cliente):
+
+    for servico, valores in dict_servicos_valores.items():
+        cursor.execute("""INSERT INTO servicos (cliente_id, descricao, status, valor)
+                                  VALUES ( ?, ?, ?, ?)""",
+                       (id_cliente, servico, "Em produção", valores))
 
     conexao.commit()
 
