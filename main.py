@@ -31,21 +31,7 @@ while loop:
 
         if cadastro_ou_info == "1":
             function_clientes.display_clients_info(cursor)
-            pergunta_editar_cliente = input("Deseja editar os dados do cliente? [S/N]").lower()
-
-            if pergunta_editar_cliente == "s":
-                cliente_edit_id = input("Escolha o número do cliente que deseja editar: ")
-
-                try:
-                    cliente_edit_id = int(cliente_edit_id)
-                    function_clientes.update_clients_info(conexao, cursor, cliente_edit_id)
-                except ValueError:
-                    print("Tem que ser um número")
-
-            elif pergunta_editar_cliente == "n":
-                limpar_tela()
-            else:
-                print(digitou_errado)
+            function_clientes.asking_if_wanna_edit(conexao, cursor, "cliente")
 
         elif cadastro_ou_info == "2":
             function_clientes.cadastrar_clientes(conexao, cursor)
@@ -100,6 +86,9 @@ while loop:
             function_clientes.pega_pedidos_com_status_escolhido(cursor, "Desistência")
         else:
             print(digitou_errado)
+            continue
+
+        function_clientes.asking_if_wanna_edit(conexao, cursor, "pedido")
 
     elif user_menu_input == "4":
         loop = False
