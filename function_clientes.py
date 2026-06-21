@@ -1,16 +1,6 @@
 import prints
 
-def clients_info(cursor):
-    cursor.execute("""SELECT nome, cpf, numero FROM clientes""")
-    info = cursor.fetchall()
-    print("----------------------------------------------------------------------")
-    for client_data in info:
-        nome, cpf, numero = client_data
-        print(f"Nome: {nome.capitalize()} / CPF: {cpf} / Numero: {numero}")
-        print("----------------------------------------------------------------------")
-
-
-def cadastrar_clientes(conexao, cursor):
+def get_clients_info():
     nome_cliente = input("Informe o nome do cliente: ").lower()
     cpf_cliente = input("Informe o CPF do cliente: ")
     numero_cliente = input("Informe o numero do cliente: ")
@@ -21,6 +11,21 @@ def cadastrar_clientes(conexao, cursor):
 
     confirm_registration = input("As informações estão corretas? [S/N]").lower()
 
+    return confirm_registration, nome_cliente, cpf_cliente, numero_cliente
+
+def display_clients_info(cursor):
+    cursor.execute("""SELECT id, nome, cpf, numero FROM clientes""")
+    info = cursor.fetchall()
+    print("----------------------------------------------------------------------")
+    for client_data in info:
+        id, nome, cpf, numero = client_data
+        print(f"({id}) Nome: {nome.capitalize()} / CPF: {cpf} / Numero: {numero}")
+        print("----------------------------------------------------------------------")
+
+def cadastrar_clientes(conexao, cursor):
+
+    confirm_registration, nome_cliente, cpf_cliente, numero_cliente = get_clients_info()
+
     if confirm_registration == "s":
         cursor.execute("""INSERT INTO clientes (nome, cpf, numero)
                           VALUES (?, ?, ?)""",
@@ -28,9 +33,20 @@ def cadastrar_clientes(conexao, cursor):
 
         conexao.commit()
         print("Cliente cadastrado com sucesso!")
+
     elif confirm_registration == "n":
         print("Cliente não cadastrado")
 
+def update_clients_info(conexao, cursor, cliente_id):
+    confirm_registration, nome_cliente, cpf_cliente, numero_cliente = get_clients_info()
+
+    if confirm_registration == "s":
+        cursor.execute("""UPDATE clientes SET nome = ?, cpf = ?, numero = ?
+                          WHERE id = ?""",
+                       (nome_cliente, cpf_cliente, numero_cliente, cliente_id))
+
+        conexao.commit()
+        print("Cliente atualizado com sucesso!")
 
 def pega_pedidos_com_status_escolhido(cursor, status):
     print(f"""
